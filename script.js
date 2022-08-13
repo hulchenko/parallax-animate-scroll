@@ -1,58 +1,37 @@
-// init controller
-var controller = new ScrollMagic.Controller();
-// build scene
-new ScrollMagic.Scene({
-  triggerElement: '#trigger1',
-  triggerHook: 0.9, // show, when scrolled 10% into view
-  duration: '80%', // hide 10% before exiting view (80% + 10% from bottom)
-  offset: 50, // move trigger to center of element
-})
-  .setClassToggle('#reveal1', 'visible') // add class to reveal
-  .addIndicators() // add indicators (requires plugin)
-  .addTo(controller);
+window.addEventListener('load', function () {
+  //load up p tags
+  duplicatePs(100);
 
-// build scene
-new ScrollMagic.Scene({
-  triggerElement: '#trigger2',
-  triggerHook: 0.9,
-  offset: 50, // move trigger to center of element
-  reverse: false, // only do once
-})
-  .setClassToggle('#reveal2', 'visible') // add class toggle
-  .addIndicators() // add indicators (requires plugin)
-  .addTo(controller);
+  const arrayOfTextElements = document.querySelectorAll('.text');
 
-// build scenes
-var revealElements = document.getElementsByClassName('digit');
-for (var i = 0; i < revealElements.length; i++) {
-  // create a scene for each element
-  new ScrollMagic.Scene({
-    triggerElement: revealElements[i], // y value not modified, so we can use element as trigger as well
-    offset: 50, // start a little later
-    triggerHook: 0.9,
-  })
-    .setClassToggle(revealElements[i], 'visible') // add class toggle
-    .addIndicators({ name: 'digit ' + (i + 1) }) // add indicators (requires plugin)
-    .addTo(controller);
-}
-
-// build Tween
-var tween = new TimelineMax()
-  .from('#gsap-anim', 1.5, { rotationY: 180, scale: 0.7, opacity: 0 })
-  .to('#gsap-anim', 1.5, {
-    rotationY: 180,
-    scale: 0.7,
-    opacity: 0,
-    delay: 7,
+  // animate initial elements on screen
+  arrayOfTextElements.forEach((el) => {
+    if (el.offsetTop < window.innerHeight) {
+      el.classList.add('fade-in');
+    }
   });
 
-// build scene
-new ScrollMagic.Scene({
-  triggerElement: '#gsap-trigger',
-  triggerHook: 'onEnter', // show, when scrolled 10% into view
-  duration: '100%', // use full viewport
-  offset: 50, // move trigger to center of element
-})
-  .setTween(tween)
-  .addIndicators({ name: 'GSAP' }) // add indicators (requires plugin)
-  .addTo(controller);
+  const forceTextSlideUp = () => {
+    arrayOfTextElements.forEach((el) => {
+      const pageBottom = window.scrollY + window.innerHeight;
+      const elPosition = el.offsetTop;
+      const isHalfShown = pageBottom > el.offsetTop;
+      const isNotScrolledPast = window.scrollY < elPosition;
+      if (isHalfShown && isNotScrolledPast) {
+        el.classList.add('slide-up');
+      }
+    });
+  };
+
+  window.addEventListener('scroll', () => forceTextSlideUp());
+});
+
+const duplicatePs = (quantity) => {
+  let pTag = '';
+  for (let i = 0; i < quantity; i++) {
+    pTag += `<p class="text">
+    Lorem ipsum, dolor sit amet consectetur adipisicing elit. Fugiat, dolore?
+  </p>`;
+  }
+  document.getElementById('start').innerHTML = pTag;
+};
